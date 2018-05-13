@@ -104,6 +104,7 @@ namespace GlobalHotkey
             ApplicationView.PreferredLaunchViewSize = new Size(800, 400);
             ApplicationView.GetForCurrentView().TitleBar.ButtonBackgroundColor = Colors.Transparent;
             ApplicationView.GetForCurrentView().TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+            ApplicationView.GetForCurrentView().TryResizeView(ApplicationView.PreferredLaunchViewSize);
         }
 
         /// <summary>
