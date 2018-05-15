@@ -28,6 +28,7 @@ namespace HotkeyWindow
         private HotKeyWindow hotkeyWindow = null;
         private AppServiceConnection connection = null;
         private Process process = null;
+        private bool hotkeyInProgress = false;
 
         public HotkeyAppContext()
         {
@@ -65,10 +66,14 @@ namespace HotkeyWindow
         {
             Debug.WriteLine("Connection_ServiceClosed");
             connection = null;
+            hotkeyInProgress = false;
         }
 
         private async void hotkeys_HotkeyPressed(int ID)
         {
+            if (hotkeyInProgress) return; // prevent reentrancy
+            hotkeyInProgress = true;
+
             // bring the UWP to the foreground (optional)
             IEnumerable<AppListEntry> appListEntries = await Package.Current.GetAppListEntriesAsync();
             await appListEntries.First().LaunchAsync();

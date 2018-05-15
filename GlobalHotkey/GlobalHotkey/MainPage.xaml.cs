@@ -60,6 +60,7 @@ namespace GlobalHotkey
 
         private async void AppServiceConnection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
+            AppServiceDeferral messageDeferral = args.GetDeferral();
             int id = (int)args.Request.Message["ID"];
             switch(id)
             {
@@ -79,7 +80,11 @@ namespace GlobalHotkey
                     break;
             }
             await args.Request.SendResponseAsync(new ValueSet());
+            messageDeferral.Complete();
+
+            // we no longer need the connection
             App.AppServiceDeferral.Complete();
+            App.Connection = null;
         }
     }
 }
