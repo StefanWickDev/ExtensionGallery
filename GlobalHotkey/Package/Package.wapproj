@@ -36,7 +36,7 @@
   <PropertyGroup>
     <ProjectGuid>7f9facfa-8cbf-400e-90a4-66c365d37f57</ProjectGuid>
     <TargetPlatformVersion>10.0.17134.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.14393.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
     <DefaultLanguage>en-US</DefaultLanguage>
     <PackageCertificateKeyFile>Package_StoreKey.pfx</PackageCertificateKeyFile>
     <EntryPointProjectUniqueName>..\GlobalHotkey\GlobalHotkey.csproj</EntryPointProjectUniqueName>

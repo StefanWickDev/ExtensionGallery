@@ -10,25 +10,43 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.AppService;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Collections;
+using Windows.Storage;
 
 namespace HotkeyWindow
 {
+    public enum Modifiers
+    {
+        Alt = 1,
+        Control = 2,
+        Shift = 4,
+        Windows = 8,
+        NoRepeast = 16384
+    }
+
     class HotkeyAppContext : ApplicationContext
     {
         private HotKeyWindow hotkeyWindow = null;
         private AppServiceConnection connection = null;
+        private Process process = null;
 
         public HotkeyAppContext()
         {
+            int processId = (int)ApplicationData.Current.LocalSettings.Values["processId"];
+            process = Process.GetProcessById(processId);
+            process.EnableRaisingEvents = true;
+            process.Exited += HotkeyAppContext_Exited;
             hotkeyWindow = new HotKeyWindow();
             hotkeyWindow.HotkeyPressed += new HotKeyWindow.HotkeyDelegate(hotkeys_HotkeyPressed);
-            hotkeyWindow.RegisterCombo(1001, 1, (int)Keys.S); // stingray
-            hotkeyWindow.RegisterCombo(1002, 1, (int)Keys.O); // octopus
-
-            InitializeAppServiceConnection();
+            hotkeyWindow.RegisterCombo(1001, Modifiers.Alt, Keys.S); // Alt-S = stingray
+            hotkeyWindow.RegisterCombo(1002, Modifiers.Alt, Keys.O); // Alt-O = octopus
         }
 
-        private async void InitializeAppServiceConnection()
+        private void HotkeyAppContext_Exited(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private async Task InitializeAppServiceConnection()
         {
             connection = new AppServiceConnection();
             connection.PackageFamilyName = Package.Current.Id.FamilyName;
@@ -45,7 +63,8 @@ namespace HotkeyWindow
 
         private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
         {
-            Application.Exit();
+            Debug.WriteLine("Connection_ServiceClosed");
+            connection = null;
         }
 
         private async void hotkeys_HotkeyPressed(int ID)
@@ -57,6 +76,10 @@ namespace HotkeyWindow
             // send the key ID to the UWP
             ValueSet hotkeyPressed = new ValueSet();
             hotkeyPressed.Add("ID", ID);
+            if (connection == null)
+            {
+                await InitializeAppServiceConnection();
+            }
             AppServiceResponse response = await connection.SendMessageAsync(hotkeyPressed);
         }
     }
@@ -82,9 +105,9 @@ namespace HotkeyWindow
             Application.ApplicationExit += new EventHandler(Application_ApplicationExit);
         }
 
-        public void RegisterCombo(Int32 ID, int fsModifiers, int vlc)
+        public void RegisterCombo(Int32 ID, Modifiers fsModifiers, Keys vlc)
         {
-            if (RegisterHotKey(this.Handle, ID, fsModifiers, vlc))
+            if (RegisterHotKey(this.Handle, ID, (int)fsModifiers, (int)vlc))
             {
                 IDs.Add(ID);
             }

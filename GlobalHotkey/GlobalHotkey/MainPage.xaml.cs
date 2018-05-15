@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -8,6 +9,7 @@ using Windows.ApplicationModel.AppService;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Foundation.Metadata;
+using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Popups;
@@ -37,20 +39,23 @@ namespace GlobalHotkey
 
             if (ApiInformation.IsApiContractPresent("Windows.ApplicationModel.FullTrustAppContract", 1, 0))
             {
+                Process process = Process.GetCurrentProcess();
+                ApplicationData.Current.LocalSettings.Values["processID"] = process.Id;
+
                 App.AppServiceConnected += AppServiceConnected;
                 await FullTrustProcessLauncher.LaunchFullTrustProcessForCurrentAppAsync();
+
+                MessageDialog dlg = new MessageDialog("Alt-S: Stingray\r\nAlt-O: Octopus", "Global Hotkeys Registered");
+                await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                {
+                    await dlg.ShowAsync();
+                });
             }
         }
 
-        private async void AppServiceConnected(object sender, Windows.ApplicationModel.AppService.AppServiceTriggerDetails e)
+        private void AppServiceConnected(object sender, Windows.ApplicationModel.AppService.AppServiceTriggerDetails e)
         {
             e.AppServiceConnection.RequestReceived += AppServiceConnection_RequestReceived;
-
-            MessageDialog dlg = new MessageDialog("Alt-S: Stingray\r\nAlt-O: Octopus", "Global Hotkeys Registered");
-            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
-            {
-                await dlg.ShowAsync();
-            });
         }
 
         private async void AppServiceConnection_RequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
@@ -72,7 +77,9 @@ namespace GlobalHotkey
                     break;
                 default:
                     break;
-            }            
+            }
+            await args.Request.SendResponseAsync(new ValueSet());
+            App.AppServiceDeferral.Complete();
         }
     }
 }
