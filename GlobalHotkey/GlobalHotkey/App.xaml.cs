@@ -86,6 +86,14 @@ namespace GlobalHotkey
 
                 // Place the frame in the current Window
                 Window.Current.Content = rootFrame;
+
+                // Customize the appearance of the view
+                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
+                ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
+                ApplicationView.PreferredLaunchViewSize = new Size(800, 400);
+                ApplicationView.GetForCurrentView().TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                ApplicationView.GetForCurrentView().TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                ApplicationView.GetForCurrentView().TryResizeView(ApplicationView.PreferredLaunchViewSize);
             }
 
             if (rootFrame.Content == null)
@@ -97,14 +105,6 @@ namespace GlobalHotkey
             }
             // Ensure the current window is active
             Window.Current.Activate();
-
-            // Customize the appearance of the view
-            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
-            ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.PreferredLaunchViewSize;
-            ApplicationView.PreferredLaunchViewSize = new Size(800, 400);
-            ApplicationView.GetForCurrentView().TitleBar.ButtonBackgroundColor = Colors.Transparent;
-            ApplicationView.GetForCurrentView().TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-            ApplicationView.GetForCurrentView().TryResizeView(ApplicationView.PreferredLaunchViewSize);
         }
 
         /// <summary>
