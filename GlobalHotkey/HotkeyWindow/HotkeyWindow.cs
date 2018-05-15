@@ -26,7 +26,6 @@ namespace HotkeyWindow
     class HotkeyAppContext : ApplicationContext
     {
         private HotKeyWindow hotkeyWindow = null;
-        private AppServiceConnection connection = null;
         private Process process = null;
         private bool hotkeyInProgress = false;
 
@@ -47,25 +46,9 @@ namespace HotkeyWindow
             Application.Exit();
         }
 
-        private async Task InitializeAppServiceConnection()
-        {
-            connection = new AppServiceConnection();
-            connection.PackageFamilyName = Package.Current.Id.FamilyName;
-            connection.AppServiceName = "HotkeyConnection";
-            AppServiceConnectionStatus status = await connection.OpenAsync();
-            if (status != AppServiceConnectionStatus.Success)
-            {
-                Debug.WriteLine(status);
-                Application.Exit();
-            }
-
-            connection.ServiceClosed += Connection_ServiceClosed;
-        }
-
         private void Connection_ServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
         {
             Debug.WriteLine("Connection_ServiceClosed");
-            connection = null;
             hotkeyInProgress = false;
         }
 
@@ -81,10 +64,17 @@ namespace HotkeyWindow
             // send the key ID to the UWP
             ValueSet hotkeyPressed = new ValueSet();
             hotkeyPressed.Add("ID", ID);
-            if (connection == null)
+
+            AppServiceConnection connection = new AppServiceConnection();
+            connection.PackageFamilyName = Package.Current.Id.FamilyName;
+            connection.AppServiceName = "HotkeyConnection";
+            AppServiceConnectionStatus status = await connection.OpenAsync();
+            if (status != AppServiceConnectionStatus.Success)
             {
-                await InitializeAppServiceConnection();
+                Debug.WriteLine(status);
+                Application.Exit();
             }
+            connection.ServiceClosed += Connection_ServiceClosed;
             AppServiceResponse response = await connection.SendMessageAsync(hotkeyPressed);
         }
     }
