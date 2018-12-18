@@ -40,6 +40,7 @@ namespace WPF
 
             double[] rawPoints = (double[])ApplicationData.Current.LocalSettings.Values["Points"];
             PathGeometry geo = new PathGeometry();
+            geo.FillRule = FillRule.Nonzero;
             PathFigure figure = new PathFigure();
             figure.StartPoint = new Point(rawPoints[0], rawPoints[1]);
             PolyLineSegment segment = new PolyLineSegment();
